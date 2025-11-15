@@ -1,0 +1,9 @@
+# mTLS 설정 - STRICT 모드로 모든 서비스 간 통신을 암호화
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: mesh-demo
+spec:
+  mtls:
+    mode: STRICT  # 모든 트래픽에 대해 mutual TLS 강제

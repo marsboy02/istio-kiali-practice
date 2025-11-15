@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Istio-Kiali 토이 프로젝트 UI</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        margin: 24px;
+      }
+      h1 {
+        margin-bottom: 4px;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin: 8px 0;
+      }
+      button {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .stat {
+        min-width: 120px;
+        font-variant-numeric: tabular-nums;
+      }
+      .ok {
+        color: #0a0;
+      }
+      .err {
+        color: #a00;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Istio-Kiali 토이 프로젝트</h1>
+    <p>
+      이 버튼들을 사용하여 <strong>Kiali</strong>에서 볼 수 있는 트래픽을
+      생성하세요.
+    </p>
+
+    <div class="row">
+      <button id="fastStart">빠른 트래픽 시작</button>
+      <button id="fastStop">빠른 트래픽 중지</button>
+      <span class="stat"
+        >빠른 트래픽: <span id="fastOk" class="ok">0</span> /
+        <span id="fastErr" class="err">0</span></span
+      >
+    </div>
+    <div class="row">
+      <button id="slowStart">느린 트래픽 시작</button>
+      <button id="slowStop">느린 트래픽 중지</button>
+      <span class="stat"
+        >느린 트래픽: <span id="slowOk" class="ok">0</span> /
+        <span id="slowErr" class="err">0</span></span
+      >
+    </div>
+    <div class="row">
+      <button id="errorStart">에러 트래픽 시작</button>
+      <button id="errorStop">에러 트래픽 중지</button>
+      <span class="stat"
+        >에러 트래픽: <span id="errorOk" class="ok">0</span> /
+        <span id="errorErr" class="err">0</span></span
+      >
+    </div>
+
+    <script>
+      // 각 트래픽 유형별 카운터 및 설정
+      const counters = {
+        fast: { ok: 0, err: 0, timer: null, path: "/api/fast", interval: 200 },
+        slow: { ok: 0, err: 0, timer: null, path: "/api/slow", interval: 1000 },
+        error: {
+          ok: 0,
+          err: 0,
+          timer: null,
+          path: "/api/error",
+          interval: 250,
+        },
+      };
+
+      // 트래픽 생성 시작
+      function start(name) {
+        const c = counters[name];
+        if (c.timer) return; // 이미 실행 중이면 무시
+        c.timer = setInterval(async () => {
+          try {
+            const res = await fetch(c.path);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            c.ok++;
+          } catch (e) {
+            c.err++;
+          } finally {
+            // UI 업데이트
+            document.getElementById(name + "Ok").textContent = c.ok;
+            document.getElementById(name + "Err").textContent = c.err;
+          }
+        }, c.interval);
+      }
+
+      // 트래픽 생성 중지
+      function stop(name) {
+        const c = counters[name];
+        if (c.timer) {
+          clearInterval(c.timer);
+          c.timer = null;
+        }
+      }
+
+      // 버튼 이벤트 핸들러 등록
+      document.getElementById("fastStart").onclick = () => start("fast");
+      document.getElementById("fastStop").onclick = () => stop("fast");
+      document.getElementById("slowStart").onclick = () => start("slow");
+      document.getElementById("slowStop").onclick = () => stop("slow");
+      document.getElementById("errorStart").onclick = () => start("error");
+      document.getElementById("errorStop").onclick = () => stop("error");
+    </script>
+  </body>
+</html>

@@ -4,13 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This repository contains a comprehensive guide for building an Istio + Kiali toy project on Minikube. Currently, the repo contains only the specification document ([istio_kiali_toy_project_minikube_full_markdown_guide.md](istio_kiali_toy_project_minikube_full_markdown_guide.md)) - the actual implementation has not been created yet.
+This repository contains a complete implementation of an Istio + Kiali toy project on Minikube, based on the specification in [istio_kiali_toy_project_minikube_full_markdown_guide.md](istio_kiali_toy_project_minikube_full_markdown_guide.md).
 
 **Purpose**: To demonstrate service mesh observability with a microservices architecture that generates various traffic patterns (fast, slow, error) visible in Kiali.
 
-## Target Architecture
+**Note**: All annotations and comments in the code are in Korean (한국어).
 
-When implemented, this will be a 4-service Node.js application:
+## Architecture
+
+This is a 4-service Node.js application:
 
 ```
 (ui) ──HTTP──> (api) ──HTTP──> (details)
@@ -24,23 +26,80 @@ When implemented, this will be a 4-service Node.js application:
 
 All services run in the `mesh-demo` namespace with Istio sidecar injection enabled and mTLS STRICT mode.
 
-## Implementation Plan
+## Repository Structure
 
-The guide describes this structure to be created:
-- `apps/` - Four Node.js Express microservices (ui, api, details, ratings)
-- `k8s/base/` - Kubernetes manifests using Kustomize
-- `istio/` - Istio configuration (Gateway, VirtualService, PeerAuthentication, DestinationRule)
-- `Makefile` - Build and deployment automation
+```
+istio-kiali-practice/
+├── apps/
+│   ├── ui/              # 웹 프론트엔드 (트래픽 생성 버튼)
+│   │   ├── package.json
+│   │   ├── server.js
+│   │   ├── public/
+│   │   │   └── index.html
+│   │   └── Dockerfile
+│   ├── api/             # API 집계 서비스
+│   │   ├── package.json
+│   │   ├── server.js
+│   │   └── Dockerfile
+│   ├── details/         # 상세 정보 서비스 (가변 지연)
+│   │   ├── package.json
+│   │   ├── server.js
+│   │   └── Dockerfile
+│   └── ratings/         # 평점 서비스 (랜덤 에러)
+│       ├── package.json
+│       ├── server.js
+│       └── Dockerfile
+├── k8s/base/
+│   ├── namespace.yaml           # mesh-demo 네임스페이스
+│   ├── ui.yaml                  # UI Deployment & Service
+│   ├── api.yaml                 # API Deployment & Service
+│   ├── details.yaml             # Details Deployment & Service
+│   ├── ratings.yaml             # Ratings Deployment & Service
+│   └── kustomization.yaml       # Kustomize 설정
+├── istio/
+│   ├── peer-authentication.yaml      # mTLS STRICT 설정
+│   ├── gateway-virtualservice.yaml   # 인그레스 게이트웨이 & 라우팅
+│   └── destinationrule-api.yaml      # 서킷 브레이커 (선택사항)
+├── Makefile                     # 빌드 & 배포 자동화
+└── CLAUDE.md                    # 이 파일
+```
 
-## Key Commands (when implemented)
+## Key Commands
+
+### Quick Start
+```bash
+# 1. Minikube가 실행 중인지 확인
+minikube status
+
+# 2. Istio 설치
+make istio
+
+# 3. 관측성 도구 설치 (Prometheus, Jaeger, Kiali)
+make addons
+
+# 4. 이미지 빌드 및 애플리케이션 배포
+make deploy
+
+# 5. Ingress 접근 설정 (별도 터미널)
+minikube tunnel
+# 또는
+kubectl -n istio-system port-forward svc/istio-ingressgateway 8080:80
+
+# 6. Kiali 대시보드 열기 (별도 터미널)
+make kiali
+# 브라우저에서 http://localhost:20001 접속
+```
 
 ### Building Images
 ```bash
-# Build directly into Minikube's image cache
+# Minikube 이미지 캐시에 직접 빌드
 minikube image build -t toy/ui:local ./apps/ui
 minikube image build -t toy/api:local ./apps/api
 minikube image build -t toy/details:local ./apps/details
 minikube image build -t toy/ratings:local ./apps/ratings
+
+# 또는 Makefile 사용
+make images
 ```
 
 ### Istio Installation

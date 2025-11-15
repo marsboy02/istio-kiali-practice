@@ -1,0 +1,37 @@
+# Gateway - 외부에서 메시로 들어오는 트래픽 진입점
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: ui-gw
+  namespace: mesh-demo
+spec:
+  selector:
+    istio: ingressgateway  # 기본 Istio ingressgateway와 매칭
+  servers:
+    - port: { number: 80, name: http, protocol: HTTP }
+      hosts: ["*"]  # 모든 호스트 허용
+---
+# VirtualService - Gateway를 통한 라우팅 규칙
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ui-vs
+  namespace: mesh-demo
+spec:
+  hosts: ["*"]
+  gateways: ["ui-gw"]
+  http:
+    # /api로 시작하는 경로는 API 서비스로 라우팅
+    - name: api
+      match:
+        - uri: { prefix: "/api" }
+      route:
+        - destination:
+            { host: api.mesh-demo.svc.cluster.local, port: { number: 8080 } }
+    # 나머지 모든 경로는 UI 서비스로 라우팅
+    - name: ui
+      match:
+        - uri: { prefix: "/" }
+      route:
+        - destination:
+            { host: ui.mesh-demo.svc.cluster.local, port: { number: 8080 } }

@@ -1,0 +1,46 @@
+# Ratings 서비스 - 랜덤 에러 생성
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ratings
+  namespace: mesh-demo
+  labels: { app: ratings, version: v1 }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: ratings, version: v1 } }
+  template:
+    metadata:
+      labels: { app: ratings, version: v1 }
+    spec:
+      containers:
+        - name: ratings
+          image: toy/ratings:local
+          imagePullPolicy: IfNotPresent
+          env:
+            # 에러 발생률 10% 설정
+            - { name: ERROR_RATE, value: "0.1" }
+          ports: [{ containerPort: 8080 }]
+          readinessProbe:
+            {
+              httpGet: { path: "/healthz", port: 8080 },
+              initialDelaySeconds: 2,
+            }
+          resources:
+            {
+              requests: { cpu: "50m", memory: "64Mi" },
+              limits: { cpu: "200m", memory: "128Mi" },
+            }
+---
+# Ratings 서비스 노출
+apiVersion: v1
+kind: Service
+metadata:
+  name: ratings
+  namespace: mesh-demo
+  labels: { app: ratings }
+spec:
+  selector: { app: ratings }
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

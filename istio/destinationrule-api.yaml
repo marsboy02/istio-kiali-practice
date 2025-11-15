@@ -1,0 +1,21 @@
+# DestinationRule - API 서비스에 대한 트래픽 정책 (선택사항)
+# 서킷 브레이커 및 아웃라이어 탐지 설정
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: api-dr
+  namespace: mesh-demo
+spec:
+  host: api.mesh-demo.svc.cluster.local
+  trafficPolicy:
+    # 연결 풀 설정
+    connectionPool:
+      http:
+        http1MaxPendingRequests: 10      # 최대 대기 요청 수
+        maxRequestsPerConnection: 100     # 연결당 최대 요청 수
+    # 아웃라이어 탐지 (비정상 인스턴스 격리)
+    outlierDetection:
+      consecutive5xx: 3           # 연속 3번 5xx 에러 발생 시 격리
+      interval: 5s                # 분석 간격
+      baseEjectionTime: 30s       # 기본 격리 시간
+      maxEjectionPercent: 50      # 최대 격리 인스턴스 비율
