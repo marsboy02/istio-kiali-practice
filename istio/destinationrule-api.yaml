@@ -15,7 +15,7 @@ spec:
         maxRequestsPerConnection: 100     # 연결당 최대 요청 수
     # 아웃라이어 탐지 (비정상 인스턴스 격리)
     outlierDetection:
-      consecutive5xx: 3           # 연속 3번 5xx 에러 발생 시 격리
-      interval: 5s                # 분석 간격
-      baseEjectionTime: 30s       # 기본 격리 시간
-      maxEjectionPercent: 50      # 최대 격리 인스턴스 비율
+      consecutiveGatewayErrors: 3  # 연속 3번 게이트웨이 에러 발생 시 격리
+      interval: 5s                 # 분석 간격
+      baseEjectionTime: 30s        # 기본 격리 시간
+      maxEjectionPercent: 50       # 최대 격리 인스턴스 비율

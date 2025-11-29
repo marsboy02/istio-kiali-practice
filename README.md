@@ -195,6 +195,11 @@ istio-kiali-practice/
 - `minikube tunnel` 선호
 - 그렇지 않으면 ingressgateway에서 포트 포워딩 사용
 
+### DestinationRule 에러
+- 최신 Istio 버전에서 `consecutive5xx` 필드가 `consecutiveGatewayErrors`로 변경됨
+- 이미 수정된 버전이 포함되어 있습니다
+- DestinationRule은 선택사항이므로 에러가 발생해도 앱은 정상 작동
+
 ## 🔄 선택적 확장
 
 - **Canary 배포**: `version: v2`로 `api`에 대한 카나리 추가 및 트래픽 80/20 분할 VirtualService

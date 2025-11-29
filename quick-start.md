@@ -5,6 +5,7 @@
 ## 📋 사전 체크리스트
 
 시작하기 전에 다음 항목들을 확인하세요:
+
 - [ ] macOS, Linux, 또는 Windows (WSL2)
 - [ ] 최소 8GB RAM (16GB 권장)
 - [ ] 20GB 이상의 여유 디스크 공간
@@ -17,6 +18,7 @@
 ### 1.1 Docker 설치
 
 **macOS:**
+
 ```bash
 # Docker Desktop 다운로드 및 설치
 # https://www.docker.com/products/docker-desktop
@@ -28,6 +30,7 @@ brew install --cask docker
 ```
 
 **Linux (Ubuntu/Debian):**
+
 ```bash
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
@@ -36,6 +39,7 @@ newgrp docker
 ```
 
 **확인:**
+
 ```bash
 docker --version
 # 출력 예: Docker version 24.0.x
@@ -44,6 +48,7 @@ docker --version
 ### 1.2 kubectl 설치
 
 **macOS:**
+
 ```bash
 # Homebrew 사용
 brew install kubectl
@@ -55,6 +60,7 @@ sudo mv kubectl /usr/local/bin/
 ```
 
 **Linux:**
+
 ```bash
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x kubectl
@@ -62,6 +68,7 @@ sudo mv kubectl /usr/local/bin/
 ```
 
 **확인:**
+
 ```bash
 kubectl version --client
 ```
@@ -69,6 +76,7 @@ kubectl version --client
 ### 1.3 Minikube 설치
 
 **macOS:**
+
 ```bash
 # Homebrew 사용
 brew install minikube
@@ -79,12 +87,14 @@ sudo install minikube-darwin-amd64 /usr/local/bin/minikube
 ```
 
 **Linux:**
+
 ```bash
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 sudo install minikube-linux-amd64 /usr/local/bin/minikube
 ```
 
 **확인:**
+
 ```bash
 minikube version
 # 출력 예: minikube version: v1.32.0
@@ -105,6 +115,7 @@ minikube start --cpus=4 --memory=8192 --driver=docker
 ```
 
 **문제 해결:**
+
 - `driver=docker` 오류 시: Docker Desktop이 실행 중인지 확인
 - 메모리 부족 오류 시: `--memory=6144`로 줄여보세요
 - HyperKit 오류 (macOS): `--driver=hyperkit` 대신 `--driver=docker` 사용
@@ -153,6 +164,7 @@ ls -la | grep istio
 ### 3.2 istioctl PATH에 추가
 
 **임시로 추가 (현재 터미널 세션만):**
+
 ```bash
 # Istio 버전에 맞게 경로 조정
 export PATH=$HOME/istio-1.20.2/bin:$PATH
@@ -165,6 +177,7 @@ istioctl version
 **영구적으로 추가 (권장):**
 
 **zsh 사용자 (macOS 기본):**
+
 ```bash
 # .zshrc에 추가
 echo 'export PATH="$HOME/istio-1.20.2/bin:$PATH"' >> ~/.zshrc
@@ -172,6 +185,7 @@ source ~/.zshrc
 ```
 
 **bash 사용자:**
+
 ```bash
 # .bashrc에 추가
 echo 'export PATH="$HOME/istio-1.20.2/bin:$PATH"' >> ~/.bashrc
@@ -179,6 +193,7 @@ source ~/.bashrc
 ```
 
 **확인:**
+
 ```bash
 which istioctl
 # 출력: /Users/your-username/istio-1.20.2/bin/istioctl
@@ -187,6 +202,7 @@ which istioctl
 ### 3.3 Istio 버전 확인
 
 다운로드한 Istio 디렉토리 이름 확인:
+
 ```bash
 ls -d ~/istio-*
 # 출력 예: /Users/marsboy/istio-1.20.2
@@ -221,6 +237,7 @@ istioctl install -y --set profile=default --set meshConfig.defaultConfig.tracing
 ```
 
 **출력 확인:**
+
 ```
 ✔ Istio core installed
 ✔ Istiod installed
@@ -241,6 +258,7 @@ kubectl get pods -n istio-system
 ```
 
 **문제 해결:**
+
 - 파드가 Pending 상태: `kubectl describe pod <pod-name> -n istio-system`으로 확인
 - 파드가 CrashLoopBackOff: Minikube 메모리 부족일 수 있음
 
@@ -251,12 +269,14 @@ kubectl get pods -n istio-system
 ### 5.1 애드온 설치
 
 **방법 A - Makefile 사용 (권장):**
+
 ```bash
 # Istio 버전에 맞게 경로 지정
 make addons ISTIO_ADDONS_DIR=~/istio-1.20.2/samples/addons
 ```
 
 **방법 B - 수동 설치:**
+
 ```bash
 # Istio 버전에 맞게 경로 조정
 kubectl apply -f ~/istio-1.20.2/samples/addons/prometheus.yaml
@@ -297,6 +317,7 @@ make deploy
 ```
 
 **이미지 빌드 진행 상황:**
+
 ```
 Building image for ui...
 Building image for api...
@@ -319,6 +340,7 @@ kubectl get pods -n mesh-demo
 ```
 
 **주의:** `READY` 컬럼이 `2/2`인 것은 정상입니다:
+
 - 1개는 애플리케이션 컨테이너
 - 1개는 Istio 사이드카 프록시
 
@@ -342,11 +364,13 @@ kubectl get svc -n mesh-demo
 ### 7.1 Ingress Gateway 포트 포워딩 (가장 간단한 방법)
 
 **새 터미널 창 열기 (이 프로세스는 계속 실행되어야 함):**
+
 ```bash
 kubectl -n istio-system port-forward svc/istio-ingressgateway 8080:80
 ```
 
 **출력:**
+
 ```
 Forwarding from 127.0.0.1:8080 -> 8080
 Forwarding from [::1]:8080 -> 8080
@@ -355,11 +379,13 @@ Forwarding from [::1]:8080 -> 8080
 ### 7.2 브라우저에서 애플리케이션 열기
 
 웹 브라우저를 열고 다음 주소로 이동:
+
 ```
 http://localhost:8080
 ```
 
 **보여야 할 화면:**
+
 - **Istio-Kiali 토이 프로젝트** 제목
 - 3개의 버튼 행:
   - 빠른 트래픽 시작/중지
@@ -369,12 +395,14 @@ http://localhost:8080
 ### 7.3 대안: Minikube Tunnel 사용
 
 **새 터미널 창에서:**
+
 ```bash
 # 관리자 권한 필요 (비밀번호 입력 요구됨)
 minikube tunnel
 ```
 
 **Ingress IP 확인:**
+
 ```bash
 kubectl -n istio-system get svc istio-ingressgateway
 
@@ -392,10 +420,12 @@ kubectl -n istio-system get svc istio-ingressgateway
 브라우저에서 UI (`http://localhost:8080`)에 접속하여:
 
 1. **"빠른 트래픽 시작"** 버튼 클릭
+
    - 초록색 카운터가 올라가기 시작함
    - 200ms마다 요청 전송
 
 2. **"느린 트래픽 시작"** 버튼 클릭
+
    - 1초마다 느린 요청 전송
 
 3. **"에러 트래픽 시작"** 버튼 클릭
@@ -407,6 +437,7 @@ kubectl -n istio-system get svc istio-ingressgateway
 ### 8.2 Kiali 대시보드 열기
 
 **새 터미널 창 열기:**
+
 ```bash
 cd ~/sources/istio-kiali-practice
 make kiali
@@ -416,6 +447,7 @@ kubectl -n istio-system port-forward svc/kiali 20001:20001
 ```
 
 **출력:**
+
 ```
 Forwarding from 127.0.0.1:20001 -> 20001
 ```
@@ -423,6 +455,7 @@ Forwarding from 127.0.0.1:20001 -> 20001
 ### 8.3 Kiali 접속
 
 브라우저에서 다음 주소로 이동:
+
 ```
 http://localhost:20001
 ```
@@ -443,6 +476,7 @@ Kiali 대시보드에서:
    - **"Requests percentage"**
 
 **보여야 할 것:**
+
 ```
         ┌──> [details]
         │
@@ -509,6 +543,7 @@ minikube delete
 ### 문제 1: "istioctl: command not found"
 
 **해결:**
+
 ```bash
 export PATH=$HOME/istio-1.20.2/bin:$PATH
 # Istio 버전에 맞게 경로 조정
@@ -517,6 +552,7 @@ export PATH=$HOME/istio-1.20.2/bin:$PATH
 ### 문제 2: "no such file or directory" (애드온 설치 시)
 
 **해결:**
+
 ```bash
 # Istio 디렉토리 확인
 ls -d ~/istio-*
@@ -528,6 +564,7 @@ make addons ISTIO_ADDONS_DIR=~/istio-<version>/samples/addons
 ### 문제 3: Minikube가 시작되지 않음
 
 **해결:**
+
 ```bash
 # 기존 클러스터 삭제하고 재시작
 minikube delete
@@ -537,6 +574,7 @@ minikube start --cpus=4 --memory=8192 --driver=docker
 ### 문제 4: 파드가 Pending 상태
 
 **해결:**
+
 ```bash
 # 리소스 확인
 kubectl describe pod <pod-name> -n mesh-demo
@@ -549,6 +587,7 @@ minikube start --cpus=4 --memory=10240
 ### 문제 5: Kiali에 그래프가 안 보임
 
 **해결:**
+
 1. UI에서 트래픽이 생성 중인지 확인
 2. 30-60초 대기 (메트릭 수집 시간 필요)
 3. Prometheus가 실행 중인지 확인:
@@ -559,6 +598,7 @@ minikube start --cpus=4 --memory=10240
 ### 문제 6: 브라우저에서 "Connection refused"
 
 **해결:**
+
 ```bash
 # 포트 포워딩이 실행 중인지 확인
 ps aux | grep "port-forward"
@@ -566,6 +606,30 @@ ps aux | grep "port-forward"
 # 포트 포워딩 재시작
 kubectl -n istio-system port-forward svc/istio-ingressgateway 8080:80
 ```
+
+### 문제 7: DestinationRule 생성 시 "unknown field" 에러
+
+**에러 메시지:**
+
+```text
+Error from server (BadRequest): error when creating "istio/destinationrule-api.yaml":
+DestinationRule in version "v1beta1" cannot be handled as a DestinationRule:
+strict decoding error: unknown field "spec.trafficPolicy.outlierDetection.consecutive5xx"
+```
+
+**원인:** Istio 최신 버전에서 API 필드명이 변경되었습니다.
+
+**해결:** 이 에러는 이미 수정되었습니다. 만약 여전히 발생한다면:
+
+```bash
+# 기존 리소스 삭제
+kubectl delete -f istio/destinationrule-api.yaml --ignore-not-found
+
+# 다시 적용
+kubectl apply -f istio/destinationrule-api.yaml
+```
+
+**참고:** DestinationRule은 선택사항이므로, 이 에러가 발생해도 애플리케이션은 정상 작동합니다.
 
 ---
 
@@ -618,12 +682,14 @@ kubectl exec -it <pod-name> -n mesh-demo -- /bin/sh
 축하합니다! Istio 서비스 메시와 Kiali 관측성을 성공적으로 실행했습니다.
 
 **다음 단계:**
+
 - Kiali에서 다양한 메트릭 탐색
 - Jaeger에서 분산 추적 확인
 - `istio/` 디렉토리의 설정 파일 수정 및 실험
 - 추가 트래픽 패턴 생성 및 관찰
 
 **질문이나 문제가 있으면:**
+
 - [CLAUDE.md](CLAUDE.md) - AI 어시스턴트용 참조 문서
 - [README.md](README.md) - 전체 프로젝트 문서
 - Istio 공식 문서: https://istio.io/latest/docs/
